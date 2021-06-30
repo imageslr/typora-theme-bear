@@ -1,0 +1,29 @@
+name: Release from imageslr/mweb-themes
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        run: |
+          git clone https://github.com/imageslr/mweb-themes
+      - name: Set up Node.js  # Nodejs版本
+        uses: actions/setup-node@master
+        with:
+          node-version: 12.13.0
+      - name: Build and Pack
+        run: |
+          cd mweb-themes
+          npm install
+          npm run compile -- --platform typora --distDir dist/typora-themes
+          cd dist/typora-themes
+          zip -r typora-theme-bear.zip ./
+      - name: Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          title: "Latest"
+          prerelease: false
+          files: mweb-themes/dist/typora-themes/typora-theme-bear.zip
